@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CyberLDR - Game Kuis Arduino LDR</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+    }
+    .font-display {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .neon-border {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+    }
+    .neon-text-green {
+      text-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+    .neon-text-blue {
+      text-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+  <!-- Header / Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50 px-4 py-3">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-blue-600 flex items-center justify-center font-display font-bold text-white shadow-lg shadow-emerald-500/20">
+          Ω
+        </div>
+        <div>
+          <h1 class="font-display font-bold text-lg tracking-wide bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+            CyberLDR
+          </h1>
+          <p class="text-xs text-slate-400 font-medium">Arduino Sensor Simulation Game</p>
+        </div>
+      </div>
+
+      <!-- Player Stats HUD (Hidden on Welcome Screen) -->
+      <div id="hud-stats" class="hidden flex items-center gap-4 sm:gap-6">
+        <div class="flex flex-col items-end">
+          <span id="hud-name" class="text-sm font-semibold text-slate-200">Player</span>
+          <span id="hud-class" class="text-xs text-slate-400">Kelas</span>
+        </div>
+        <div class="h-8 w-[1px] bg-slate-800"></div>
+        <div class="text-center">
+          <div class="text-xs text-slate-400 uppercase tracking-widest font-bold">XP Poin</div>
+          <div id="hud-xp" class="text-emerald-400 font-display font-bold text-lg">0</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-grow max-w-4xl w-full mx-auto p-4 flex flex-col justify-center">
+
+    <!-- SCREEN 1: WELCOME SCREEN -->
+    <section id="screen-welcome" class="space-y-8 py-6">
+      <div class="text-center space-y-4">
+        <span class="px-4 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-semibold uppercase tracking-wider border border-emerald-500/20 inline-block">
+          ⚡ Interactive Learning Game
+        </span>
+        <h2 class="text-4xl sm:text-5xl font-display font-extrabold tracking-tight text-white leading-tight">
+          Kuasai Simulasi Arduino <br>
+          <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-blue-500 bg-clip-text text-transparent">
+            Sensor Cahaya LDR
+          </span>
+        </h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+          Petualangan interaktif 7 Misi untuk menguji kemampuan membaca sirkuit, memahami kode program, dan menyelesaikan otomatisasi LED berdasarkan data sensor cahaya LDR.
+        </p>
+      </div>
+
+      <!-- Quick Info Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+        <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800 flex items-start gap-4">
+          <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-200 text-sm">7 Misi Spesifik</h4>
+            <p class="text-xs text-slate-400 mt-1">Sirkuit, Inisialisasi, setup(), loop(), Kondisi Gelap, Remang, dan Terang.</p>
+          </div>
+        </div>
+        <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800 flex items-start gap-4">
+          <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-200 text-sm">Tebak Gambar Dinamis</h4>
+            <p class="text-xs text-slate-400 mt-1">Setiap soal dilengkapi ilustrasi sirkuit SVG interaktif penunjang pemahaman.</p>
+          </div>
+        </div>
+        <div class="bg-slate-900/50 p-5 rounded-2xl border border-slate-800 flex items-start gap-4">
+          <div class="p-3 bg-purple-500/10 rounded-xl text-purple-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-200 text-sm">Kirim Hasil Tugas</h4>
+            <p class="text-xs text-slate-400 mt-1">Ekspor hasil bermain langsung menjadi draf email tugas belajar formal.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-center">
+        <button onclick="changeScreen('screen-setup')" class="px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 font-display tracking-wide text-lg inline-flex items-center gap-3">
+          <span>Mulai Petualangan</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: SETUP / REGISTRATION -->
+    <section id="screen-setup" class="hidden max-w-md mx-auto w-full bg-slate-900/40 p-8 rounded-3xl border border-slate-800 space-y-6">
+      <div class="text-center space-y-2">
+        <h3 class="text-2xl font-display font-bold text-white">Identitas Agen Kuis</h3>
+        <p class="text-sm text-slate-400">Masukkan nama dan kelas Anda untuk dicantumkan dalam laporan penugasan.</p>
+      </div>
+
+      <form id="form-identity" onsubmit="registerUser(event)" class="space-y-4">
+        <div class="space-y-1.5">
+          <label for="input-name" class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Nama Lengkap</label>
+          <input type="text" id="input-name" required placeholder="Contoh: Budi Santoso" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors">
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="input-class" class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Kelas</label>
+          <input type="text" id="input-class" required placeholder="Contoh: XI Teknik Elektronika 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors">
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 font-display flex items-center justify-center gap-2">
+            <span>Konfirmasi & Lanjutkan</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- SCREEN 3: MISSION MAP -->
+    <section id="screen-map" class="hidden space-y-6 py-4">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-2xl font-display font-bold text-white">Peta Pembelajaran</h3>
+          <p class="text-sm text-slate-400">Selesaikan setiap misi secara berurutan untuk menguasai sistem otomatisasi LDR!</p>
+        </div>
+        <div class="bg-slate-950/80 px-4 py-2.5 rounded-xl border border-slate-800 flex items-center gap-3">
+          <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span class="text-xs font-medium text-slate-300">Total Progres: <strong id="progress-percent" class="text-emerald-400">0%</strong></span>
+        </div>
+      </div>
+
+      <!-- Map Grid -->
+      <div id="mission-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Missions generated dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- SCREEN 4: QUIZ WORKSPACE -->
+    <section id="screen-quiz" class="hidden space-y-6 py-4">
+      <!-- Quiz Header Info -->
+      <div class="flex justify-between items-center bg-slate-900/40 p-4 rounded-2xl border border-slate-800">
+        <div class="flex items-center gap-3">
+          <span id="quiz-mission-badge" class="px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-bold border border-emerald-500/20 uppercase">
+            MISI 1
+          </span>
+          <span id="quiz-progress-text" class="text-xs text-slate-400 font-medium">Soal 1 dari 5</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-400 font-semibold">XP saat ini:</span>
+          <span id="quiz-current-xp" class="text-sm font-bold text-amber-400">1200 XP</span>
+        </div>
+      </div>
+
+      <!-- Question & Interactive Visual Section -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-stretch">
+        <!-- Visual Presenter Panel (Left/Top) -->
+        <div class="md:col-span-6 bg-slate-950 rounded-2xl border border-slate-800 p-4 flex flex-col justify-between min-h-[300px] shadow-inner relative overflow-hidden">
+          <div class="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:1.5rem_1.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-30"></div>
+          
+          <div class="relative z-10 w-full flex-grow flex items-center justify-center" id="visual-canvas">
+            <!-- Dynamic SVG content injected here -->
+          </div>
+          
+          <div class="relative z-10 text-center mt-2 pt-2 border-t border-slate-900">
+            <span class="text-[10px] uppercase font-bold tracking-widest text-slate-500">Diagram & Ilustrasi Teknis</span>
+          </div>
+        </div>
+
+        <!-- Question Panel (Right/Bottom) -->
+        <div class="md:col-span-6 flex flex-col justify-between space-y-6">
+          <div class="space-y-4">
+            <h4 id="quiz-question-text" class="text-lg font-bold text-white leading-relaxed">
+              Memuat pertanyaan...
+            </h4>
+            <p class="text-xs text-slate-400">Pilihlah salah satu jawaban di bawah ini dengan cermat!</p>
+          </div>
+
+          <!-- Options Container -->
+          <div id="quiz-options-container" class="space-y-3">
+            <!-- Options injected here -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 5: FEEDBACK MODAL (Drawn inside the center workspace) -->
+    <section id="screen-feedback" class="hidden max-w-md mx-auto w-full bg-slate-900/90 p-8 rounded-3xl border border-slate-700 text-center space-y-6 shadow-2xl relative">
+      <div id="feedback-icon-container" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl">
+        🎉
+      </div>
+      <div class="space-y-2">
+        <h3 id="feedback-title" class="text-2xl font-display font-bold">Luar Biasa!</h3>
+        <p id="feedback-desc" class="text-slate-300 text-sm">Jawaban Anda benar dan sistem bekerja semestinya!</p>
+      </div>
+
+      <div class="bg-slate-950 p-4 rounded-xl text-left border border-slate-800">
+        <span class="text-xs uppercase font-extrabold text-emerald-400 tracking-wider">Penjelasan Studi:</span>
+        <p id="feedback-explanation" class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+          Pin A0 digunakan untuk membaca sinyal analog...
+        </p>
+      </div>
+
+      <div class="flex justify-between items-center gap-4 bg-slate-950 px-4 py-2.5 rounded-xl border border-slate-800">
+        <span class="text-xs text-slate-400 font-semibold">Bonus XP diperoleh:</span>
+        <span id="feedback-xp-gain" class="text-amber-400 font-display font-bold text-sm">+200 XP</span>
+      </div>
+
+      <button id="btn-feedback-next" onclick="closeFeedbackAndContinue()" class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/20 font-display">
+        Lanjutkan Misi
+      </button>
+    </section>
+
+    <!-- SCREEN 6: CERTIFICATE & EMAIL SUBMIT (COMPLETION SCREEN) -->
+    <section id="screen-completion" class="hidden space-y-8 py-6">
+      <div class="text-center space-y-4">
+        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-600 flex items-center justify-center font-display font-bold text-4xl text-slate-950 shadow-lg shadow-amber-500/20 mx-auto">
+          🏆
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-display font-black text-white">
+          Selamat! Misi Selesai!
+        </h2>
+        <p class="text-slate-400 max-w-xl mx-auto text-sm leading-relaxed">
+          Anda telah menyelesaikan seluruh 7 Misi simulasi dan memahami logika kerja sensor cahaya LDR pada sirkuit Arduino dengan sangat baik.
+        </p>
+      </div>
+
+      <!-- Badge & Stats Board -->
+      <div class="bg-slate-900/40 border border-slate-800 p-6 rounded-3xl max-w-2xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+        <div class="space-y-1">
+          <span class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Nama Agen</span>
+          <p id="end-name" class="text-lg font-bold text-white">-</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Kelas</span>
+          <p id="end-class" class="text-lg font-bold text-white">-</p>
+        </div>
+        <div class="space-y-1">
+          <span class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Skor XP</span>
+          <p id="end-xp" class="text-lg font-bold text-emerald-400">0 XP</p>
+        </div>
+      </div>
+
+      <!-- Action Box for sending work email -->
+      <div class="max-w-xl mx-auto bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
+        <div class="flex items-center gap-4">
+          <div class="p-3 bg-blue-500/10 rounded-xl text-blue-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-200 text-sm">Kirim Hasil Tugas Anda</h4>
+            <p class="text-xs text-slate-400">Kirim laporan nilai ini ke guru pendamping sesuai instruksi dokumen.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-xl space-y-2 border border-slate-900 text-xs">
+          <div><strong class="text-slate-400">Tujuan:</strong> <span class="text-blue-400">id.imanda.fachruddin@gmail.com</span></div>
+          <div><strong class="text-slate-400">Subjek:</strong> <span class="text-slate-300">Tugas Projek Arduino dengan Sensor Cahaya LDR</span></div>
+        </div>
+
+        <button onclick="sendSubmissionEmail()" class="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 transition-all font-display tracking-wide flex items-center justify-center gap-2">
+          <span>Kirim Tugas Lewat Email</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+        </button>
+      </div>
+
+      <div class="text-center">
+        <button onclick="restartGame()" class="text-xs font-bold text-slate-500 hover:text-slate-300 uppercase tracking-widest transition-colors">
+          Ulangi Game & Reset Progress
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer Info -->
+  <footer class="border-t border-slate-900/50 bg-slate-950/40 py-4 px-4 text-center text-xs text-slate-500 space-y-1">
+    <p>Dikembangkan berdasarkan modul "Latihan Simulasi Projek Arduino dengan Sensor Cahaya LDR".</p>
+    <p>&copy; 2026 CyberLDR. Dirancang untuk Simulator Wokwi & Visual Studio Code.</p>
+  </footer>
+
+  <!-- Script Game Engine -->
+  <script>
+    // Sound FX generator (Web Audio API)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep(type) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        
+        if (type === 'click') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.1);
+        } else if (type === 'correct') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'incorrect') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+          osc.frequency.linearRampToValueAtTime(110, audioCtx.currentTime + 0.25);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.3);
+        } else if (type === 'level-up') {
+          // Play a nice little musical major chord
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          notes.forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.type = 'sine';
+            o.frequency.setValueAtTime(freq, audioCtx.currentTime + idx * 0.08);
+            g.gain.setValueAtTime(0.08, audioCtx.currentTime + idx * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + idx * 0.08 + 0.25);
+            o.start(audioCtx.currentTime + idx * 0.08);
+            o.stop(audioCtx.currentTime + idx * 0.08 + 0.25);
+          });
+        }
+      } catch (err) {
+        console.warn('Audio Context error:', err);
+      }
+    }
+
+    // STATE GAME
+    let player = {
+      name: '',
+      class: '',
+      xp: 0,
+      completedMissions: [] // Array of completed mission indexes (0 to 6)
+    };
+
+    let activeMissionIdx = 0;
+    let activeQuestionIdx = 0;
+    let activeQuestion = null;
+    let selectedOptionElement = null;
+
+    // MISSIONS AND QUESTIONS DATABASE
+    // Built specifically using the material from the PDF.
+    const missions = [
+      {
+        title: "Pengenalan Komponen & Pinout",
+        desc: "Kenali LED Hijau, LED Biru, LDR, Resistor, dan posisinya di Arduino Uno.",
+        questions: [
+          {
+            type: "wiring",
+            question: "Perhatikan diagram sirkuit. Pin digital berapakah yang dihubungkan ke LED Hijau sebagai keluaran (output)?",
+            data: { highlight: "pin11" },
+            options: ["Pin 11", "Pin 10", "Pin A0", "Pin 13"],
+            correct: "Pin 11",
+            explanation: "Berdasarkan sirkuit dan inisialisasi kode pada PDF: int ledHijauPin = 11. Jadi LED Hijau terhubung ke Pin 11."
+          },
+          {
+            type: "wiring",
+            question: "Pin digital berapakah yang dihubungkan ke anoda LED Biru melalui resistor pembatas arus?",
+            data: { highlight: "pin10" },
+            options: ["Pin 11", "Pin 10", "Pin 12", "Pin 9"],
+            correct: "Pin 10",
+            explanation: "Berdasarkan inisialisasi pada dokumen: int ledBiruPin = 10. Maka LED Biru terhubung ke Pin 10."
+          },
+          {
+            type: "wiring",
+            question: "Ke manakah kaki negatif (katoda) dari kedua LED terhubung di Arduino?",
+            data: { highlight: "gnd" },
+            options: ["VCC (5V)", "GND", "Pin A0", "Pin 13"],
+            correct: "GND",
+            explanation: "Katoda/kaki negatif LED harus selalu terhubung ke jalur Ground (GND) untuk menutup rangkaian listrik agar arus dapat mengalir."
+          },
+          {
+            type: "wiring",
+            question: "Pin analog manakah yang digunakan untuk membaca sinyal tegangan dari modul sensor cahaya LDR?",
+            data: { highlight: "pina0" },
+            options: ["Pin A0", "Pin A1", "Pin 10", "Pin 11"],
+            correct: "Pin A0",
+            explanation: "Sesuai kode inisialisasi pada dokumen: int ldrPin = A0. Sensor LDR terhubung ke input analog A0."
+          },
+          {
+            type: "wiring",
+            question: "Komponen manakah pada sirkuit yang berfungsi membatasi arus listrik agar LED tidak terbakar/rusak?",
+            data: { highlight: "resistor" },
+            options: ["Resistor", "LDR", "Arduino UNO", "Kabel Jumper"],
+            correct: "Resistor",
+            explanation: "Resistor yang dipasang seri dengan LED berfungsi membatasi arus listrik agar nilai arus tidak melebihi batas toleransi LED."
+          }
+        ]
+      },
+      {
+        title: "Inisialisasi Kode & Setup",
+        desc: "Pelajari fungsi inisialisasi pin dan kegunaan method setup() pada proyek ini.",
+        questions: [
+          {
+            type: "code",
+            question: "Baris kode manakah yang tepat untuk menginisialisasi pin LDR di Arduino?",
+            data: { codeSnippet: "int ldrPin = A0;" },
+            options: ["int ldrPin = A0;", "int ldrPin = 11;", "float ldrPin = A0;", "ldrPin = INPUT;"],
+            correct: "int ldrPin = A0;",
+            explanation: "LDR terhubung ke Pin Analog A0, sehingga tipe datanya integer (int) dan bernilai A0."
+          },
+          {
+            type: "code",
+            question: "Fungsi setup() dalam sketch Arduino digunakan untuk apa?",
+            data: { codeSnippet: "void setup() {\n  // code\n}" },
+            options: [
+              "Menjalankan kode berulang-ulang",
+              "Mengonfigurasi pengaturan awal (hanya berjalan 1 kali)",
+              "Menyimpan program ke EEPROM",
+              "Membaca input sensor secara konstan"
+            ],
+            correct: "Mengonfigurasi pengaturan awal (hanya berjalan 1 kali)",
+            explanation: "Fungsi setup() hanya dipanggil satu kali saat papan Arduino pertama kali dinyalakan untuk inisialisasi konfigurasi pin atau port komunikasi."
+          },
+          {
+            type: "code",
+            question: "Baris perintah manakah yang berfungsi untuk mengaktifkan komunikasi serial dengan kecepatan 9600 baud?",
+            data: { codeSnippet: "Serial.begin(9600);" },
+            options: ["Serial.begin(9600);", "Serial.print(9600);", "pinMode(9600, INPUT);", "analogRead(9600);"],
+            correct: "Serial.begin(9600);",
+            explanation: "Serial.begin(9600) digunakan untuk mengaktifkan dan menentukan baud rate komunikasi serial antara Arduino dan komputer/Serial Monitor."
+          },
+          {
+            type: "code",
+            question: "Kode pinMode(ledHijauPin, OUTPUT); memberi instruksi kepada Arduino agar...",
+            data: { codeSnippet: "pinMode(ledHijauPin, OUTPUT);" },
+            options: [
+              "Menjadikan pin LED Hijau sebagai pin Masukan data",
+              "Menjadikan pin LED Hijau sebagai pin Keluaran daya",
+              "Menghidupkan LED Hijau secara langsung",
+              "Membaca sensor cahaya pada LED Hijau"
+            ],
+            correct: "Menjadikan pin LED Hijau sebagai pin Keluaran daya",
+            explanation: "OUTPUT digunakan ketika pin Arduino difungsikan untuk memberikan daya/keluaran guna menggerakkan komponen seperti LED."
+          },
+          {
+            type: "code",
+            question: "Mengapa pin LDR dikonfigurasi menggunakan kode pinMode(ldrPin, INPUT);?",
+            data: { codeSnippet: "pinMode(ldrPin, INPUT);" },
+            options: [
+              "Karena LDR berfungsi sebagai pemberi sinyal/masukan ke Arduino",
+              "Agar LDR memancarkan cahaya",
+              "Karena LDR bertugas meredupkan lampu secara fisik",
+              "Agar sirkuit mendapatkan daya tambahan"
+            ],
+            correct: "Karena LDR berfungsi sebagai pemberi sinyal/masukan ke Arduino",
+            explanation: "LDR mendeteksi cahaya luar dan mengirimkan tegangannya ke Arduino, sehingga LDR dikategorikan sebagai perangkat INPUT (masukan)."
+          }
+        ]
+      },
+      {
+        title: "Logika Pembacaan Analog (LDR)",
+        desc: "Pahami cara kerja analogRead() dan jangkauan nilai sensor LDR pada Arduino.",
+        questions: [
+          {
+            type: "ldr",
+            question: "Fungsi internal Arduino apa yang digunakan untuk membaca nilai tegangan analog dari sensor LDR?",
+            data: { ldrValue: 450 },
+            options: ["analogRead(ldrPin);", "digitalRead(ldrPin);", "analogWrite(ldrPin);", "Serial.read(ldrPin);"],
+            correct: "analogRead(ldrPin);",
+            explanation: "analogRead() digunakan untuk membaca nilai tegangan analog dari pin analog (seperti A0) menjadi nilai digital 10-bit."
+          },
+          {
+            type: "ldr",
+            question: "Berapakah rentang nilai digital yang dihasilkan dari pembacaan fungsi analogRead() pada Arduino Uno?",
+            data: { ldrValue: "0 - 1023" },
+            options: ["0 - 255", "0 - 1023", "0 - 500", "0 - 5"],
+            correct: "0 - 1023",
+            explanation: "ADC pada Arduino Uno memiliki resolusi 10-bit, sehingga rentang pembacaannya adalah 2^10 = 1024 nilai unik (yaitu dari 0 sampai 1023)."
+          },
+          {
+            type: "ldr",
+            question: "Bagaimanakah karakteristik pembacaan nilai LDR pada sirkuit ini saat kondisi cahaya semakin TERANG?",
+            data: { ldrValue: 120 },
+            options: [
+              "Nilai LDR mendekati angka 0 (sangat kecil)",
+              "Nilai LDR mendekati angka 1023 (sangat besar)",
+              "Nilai LDR tetap konstan di angka 500",
+              "Nilai LDR menjadi tidak terhingga"
+            ],
+            correct: "Nilai LDR mendekati angka 0 (sangat kecil)",
+            explanation: "Sesuai penjelasan dalam PDF: '0 -> sangat terang', yang berarti kondisi terang menghasilkan resistansi kecil sehingga nilai mendekati 0."
+          },
+          {
+            type: "ldr",
+            question: "Sebaliknya, bagaimanakah karakteristik nilai LDR saat kondisi lingkungan menjadi sangat GELAP?",
+            data: { ldrValue: 980 },
+            options: [
+              "Nilai LDR mendekati angka 1023 (sangat besar)",
+              "Nilai LDR mendekati angka 0 (sangat kecil)",
+              "Nilai LDR turun drastis di bawah 100",
+              "Nilai LDR menjadi bernilai negatif"
+            ],
+            correct: "Nilai LDR mendekati angka 1023 (sangat besar)",
+            explanation: "Sesuai penjelasan dokumen: '1023 -> sangat gelap', yang berarti semakin gelap kondisi lingkungan, nilai pembacaan analog akan mendekati 1023."
+          },
+          {
+            type: "ldr",
+            question: "Jika nilai pembacaan sensor disimpan dalam variabel 'ldrStatus', manakah deklarasi tipe data variabel yang tepat?",
+            data: { codeSnippet: "int ldrStatus = analogRead(ldrPin);" },
+            options: ["int", "char", "boolean", "void"],
+            correct: "int",
+            explanation: "Karena nilai analogRead() berkisar dari 0 sampai 1023 (bilangan bulat), maka tipe data yang tepat digunakan adalah integer (int)."
+          }
+        ]
+      },
+      {
+        title: "Kondisi Gelap (LDR > 600)",
+        desc: "Kaji logika pemecahan masalah saat sensor berada dalam kondisi gelap gulita.",
+        questions: [
+          {
+            type: "serial",
+            question: "Berdasarkan tabel logika program, apa batas ambang (threshold) minimal nilai LDR agar dikategorikan sebagai kondisi GELAP?",
+            data: { status: "Gelap", text: "LDR > ?" },
+            options: ["> 600", "> 300", "<= 300", "< 600"],
+            correct: "> 600",
+            explanation: "Logika kondisi gelap di dokumen tertulis: if (ldrStatus > 600) { ... }. Berarti nilai LDR harus lebih dari 600."
+          },
+          {
+            type: "leds",
+            question: "Bagaimanakah status menyala kedua LED (Hijau dan Biru) saat kondisi LDR berada di angka 750 (Gelap)?",
+            data: { hijau: true, biru: true },
+            options: [
+              "LED Hijau: HIDUP, LED Biru: HIDUP",
+              "LED Hijau: HIDUP, LED Biru: MATI",
+              "LED Hijau: MATI, LED Biru: MATI",
+              "LED Hijau: MATI, LED Biru: HIDUP"
+            ],
+            correct: "LED Hijau: HIDUP, LED Biru: HIDUP",
+            explanation: "Dalam kondisi gelap (LDR > 600), kedua LED diberi perintah HIGH sehingga semua LED hidup untuk menerangi ruangan."
+          },
+          {
+            type: "code",
+            question: "Instruksi kode manakah yang digunakan untuk membuat lampu LED Hijau menyala (on) dalam blok kondisi gelap?",
+            data: { codeSnippet: "digitalWrite(ledHijauPin, HIGH);" },
+            options: [
+              "digitalWrite(ledHijauPin, HIGH);",
+              "digitalWrite(ledHijauPin, LOW);",
+              "analogWrite(ledHijauPin, 1023);",
+              "pinMode(ledHijauPin, HIGH);"
+            ],
+            correct: "digitalWrite(ledHijauPin, HIGH);",
+            explanation: "Fungsi digitalWrite() dengan parameter HIGH memberikan tegangan penuh (5V) ke pin target sehingga LED dapat menyala."
+          },
+          {
+            type: "serial",
+            question: "Apa isi output yang dicetak ke Serial Monitor jika nilai LDR terbaca 800?",
+            data: { status: "Gelap", text: "Gelap, Semua LED hidup : 800" },
+            options: [
+              "Gelap, Semua LED hidup: 800",
+              "Remang2, 1 LED hidup : 800",
+              "Terang, LED Mati: 800",
+              "Semua LED Hidup : Gelap"
+            ],
+            correct: "Gelap, Semua LED hidup: 800",
+            explanation: "Kode program mencetak teks statis: 'Gelap, Semua LED hidup: ' diikuti oleh nilai variabel ldrStatus (yaitu 800)."
+          },
+          {
+            type: "code",
+            question: "Manakah struktur 'if' statement yang benar untuk menguji kondisi gelap sesuai dengan kode di dokumen?",
+            data: { codeSnippet: "if (ldrStatus > 600) { ... }" },
+            options: [
+              "if (ldrStatus > 600){ }",
+              "if ldrStatus > 600 then { }",
+              "if (ldrStatus == 600){ }",
+              "if (ldrStatus < 600){ }"
+            ],
+            correct: "if (ldrStatus > 600){ }",
+            explanation: "Di dokumen tertulis: if (ldrStatus > 600) { digitalWrite(ledHijauPin, HIGH); digitalWrite(ledBiruPin, HIGH); ... }"
+          }
+        ]
+      },
+      {
+        title: "Kondisi Remang-remang (301 - 600)",
+        desc: "Kuasai logika penentuan kondisi peralihan/remang di antara gelap dan terang.",
+        questions: [
+          {
+            type: "serial",
+            question: "Manakah ekspresi logika pemrograman yang tepat untuk merumuskan jangkauan nilai remang-remang (di antara 301 - 600)?",
+            data: { status: "Remang", text: "300 < LDR <= 600" },
+            options: [
+              "ldrStatus > 300 && ldrStatus <= 600",
+              "ldrStatus >= 300 || ldrStatus < 600",
+              "ldrStatus > 300, ldrStatus <= 600",
+              "ldrStatus <= 600 && ldrStatus < 300"
+            ],
+            correct: "ldrStatus > 300 && ldrStatus <= 600",
+            explanation: "Operator && (AND) digunakan untuk memastikan kedua syarat terpenuhi secara bersamaan (lebih besar dari 300 DAN kurang dari sama dengan 600)."
+          },
+          {
+            type: "leds",
+            question: "Manakah LED yang tetap HIDUP (ON) dan manakah yang MATI (OFF) saat kondisi LDR bernilai 450 (Remang-remang)?",
+            data: { hijau: true, biru: false },
+            options: [
+              "LED Hijau: HIDUP, LED Biru: MATI",
+              "LED Hijau: HIDUP, LED Biru: HIDUP",
+              "LED Hijau: MATI, LED Biru: MATI",
+              "LED Hijau: MATI, LED Biru: HIDUP"
+            ],
+            correct: "LED Hijau: HIDUP, LED Biru: MATI",
+            explanation: "Sesuai tabel logika di PDF: Kondisi remang menyalakan LED Hijau (HIGH) dan mematikan LED Biru (LOW)."
+          },
+          {
+            type: "code",
+            question: "Bagaimanakah penulisan kode untuk mematikan LED Biru pada saat kondisi remang-remang?",
+            data: { codeSnippet: "digitalWrite(ledBiruPin, LOW);" },
+            options: [
+              "digitalWrite(ledBiruPin, LOW);",
+              "digitalWrite(ledBiruPin, HIGH);",
+              "analogWrite(ledBiruPin, 0);",
+              "pinMode(ledBiruPin, LOW);"
+            ],
+            correct: "digitalWrite(ledBiruPin, LOW);",
+            explanation: "digitalWrite() dengan parameter LOW memutus tegangan pada pin target, sehingga membuat komponen LED tersebut padam."
+          },
+          {
+            type: "serial",
+            question: "Jika nilai analog LDR adalah 500, informasi apa yang akan ditampilkan pada Serial Monitor?",
+            data: { status: "Remang", text: "Remang2, 1 LED hidup : 500" },
+            options: [
+              "Remang2, 1 LED hidup : 500",
+              "Gelap, Semua LED hidup : 500",
+              "Terang, LED Mati: 500",
+              "Remang2, LED Mati : 500"
+            ],
+            correct: "Remang2, 1 LED hidup : 500",
+            explanation: "Kode program kondisi remang-remang akan mencetak: 'Remang2, 1 LED hidup : ' diikuti nilai sensor (500)."
+          },
+          {
+            type: "ldr",
+            question: "Operator logika '&&' pada baris kode program berfungsi sebagai operator...",
+            data: { codeSnippet: "&&" },
+            options: ["DAN (Conjunction)", "ATAU (Disjunction)", "TIDAK (Negation)", "SAMA DENGAN"],
+            correct: "DAN (Conjunction)",
+            explanation: "Simbol && dalam bahasa C++/Arduino merupakan operator logika 'AND' atau 'DAN' yang menghasilkan nilai TRUE hanya jika kedua sisi bernilai TRUE."
+          }
+        ]
+      },
+      {
+        title: "Kondisi Terang (<= 300)",
+        desc: "Kaji logika pemecahan masalah saat sensor menerima banyak cahaya (terang).",
+        questions: [
+          {
+            type: "serial",
+            question: "Berapakah batas maksimal nilai LDR agar program menganggap kondisi lingkungan sekitar sudah TERANG?",
+            data: { status: "Terang", text: "LDR <= ?" },
+            options: ["<= 300", "< 300", "> 300", "<= 600"],
+            correct: "<= 300",
+            explanation: "Sesuai rumus pada kode program PDF: if (ldrStatus <= 300) { ... }, maka batas atas kondisi terang adalah nilai 300."
+          },
+          {
+            type: "leds",
+            question: "Bagaimanakah status kedua LED (Hijau dan Biru) saat kondisi lingkungan TERANG (misal nilai LDR = 150)?",
+            data: { hijau: false, biru: false },
+            options: [
+              "LED Hijau: MATI, LED Biru: MATI",
+              "LED Hijau: HIDUP, LED Biru: MATI",
+              "LED Hijau: HIDUP, LED Biru: HIDUP",
+              "LED Hijau: MATI, LED Biru: HIDUP"
+            ],
+            correct: "LED Hijau: MATI, LED Biru: MATI",
+            explanation: "Saat terang, semua lampu dimatikan (keduanya LOW) untuk menghemat penggunaan energi listrik secara otomatis."
+          },
+          {
+            type: "code",
+            question: "Manakah potongan kode yang tepat untuk memastikan kedua LED padam total saat kondisi terang?",
+            data: { codeSnippet: "digitalWrite(ledHijauPin, LOW);\ndigitalWrite(ledBiruPin, LOW);" },
+            options: [
+              "digitalWrite(ledHijauPin, LOW); digitalWrite(ledBiruPin, LOW);",
+              "digitalWrite(ledHijauPin, HIGH); digitalWrite(ledBiruPin, LOW);",
+              "digitalWrite(ledHijauPin, LOW); digitalWrite(ledBiruPin, HIGH);",
+              "digitalWrite(ledHijauPin, HIGH); digitalWrite(ledBiruPin, HIGH);"
+            ],
+            correct: "digitalWrite(ledHijauPin, LOW); digitalWrite(ledBiruPin, LOW);",
+            explanation: "Untuk mematikan kedua LED, kedua pin (ledHijauPin dan ledBiruPin) harus di-set bernilai LOW menggunakan fungsi digitalWrite."
+          },
+          {
+            type: "serial",
+            question: "Pernyataan apa yang akan muncul di Serial Monitor saat kondisi terang dengan nilai LDR = 100?",
+            data: { status: "Terang", text: "Terang, LED Mati: 100" },
+            options: [
+              "Terang, LED Mati: 100",
+              "Terang, Semua LED Hidup: 100",
+              "Remang2, 1 LED hidup : 100",
+              "Gelap, Semua LED hidup : 100"
+            ],
+            correct: "Terang, LED Mati: 100",
+            explanation: "Dalam block if (ldrStatus <= 300), kode serial mencetak 'Terang, LED Mati: ' diikuti nilai sensor (100)."
+          },
+          {
+            type: "code",
+            question: "Simbol perbandingan '<=' dalam bahasa pemrograman memiliki makna...",
+            data: { codeSnippet: "<=" },
+            options: [
+              "Kurang dari atau sama dengan",
+              "Lebih dari atau sama dengan",
+              "Kurang dari saja",
+              "Tidak sama dengan"
+            ],
+            correct: "Kurang dari atau sama dengan",
+            explanation: "Simbol <= berarti membandingkan nilai sebelah kiri agar nilainya 'kurang dari atau sama dengan' nilai sebelah kanan."
+          }
+        ]
+      },
+      {
+        title: "Integrasi Sistem & Pengiriman Tugas",
+        desc: "Latih kemampuan analisis keseluruhan alur program, simulator, serta format pengumpulan tugas.",
+        questions: [
+          {
+            type: "table",
+            question: "Lengkapi rangkuman logika sirkuit berikut: LDR = 200, Status Cahaya = ?, LED Hijau = ?, LED Biru = ?",
+            data: { row: { ldr: 200, status: "?", hijau: "?", biru: "?" } },
+            options: [
+              "Terang, OFF, OFF",
+              "Remang, ON, OFF",
+              "Gelap, ON, ON",
+              "Terang, ON, OFF"
+            ],
+            correct: "Terang, OFF, OFF",
+            explanation: "Nilai LDR 200 berada di bawah atau sama dengan 300, maka statusnya Terang, sehingga LED Hijau mati (OFF) dan LED Biru mati (OFF)."
+          },
+          {
+            type: "table",
+            question: "Lengkapi rangkuman logika sirkuit berikut: LDR = 500, Status Cahaya = ?, LED Hijau = ?, LED Biru = ?",
+            data: { row: { ldr: 500, status: "?", hijau: "?", biru: "?" } },
+            options: [
+              "Remang, ON, OFF",
+              "Terang, OFF, OFF",
+              "Gelap, ON, ON",
+              "Remang, OFF, ON"
+            ],
+            correct: "Remang, ON, OFF",
+            explanation: "Nilai LDR 500 berada di antara 301 - 600, maka statusnya Remang-remang, sehingga LED Hijau hidup (ON) dan LED Biru mati (OFF)."
+          },
+          {
+            type: "table",
+            question: "Lengkapi rangkuman logika sirkuit berikut: LDR = 800, Status Cahaya = ?, LED Hijau = ?, LED Biru = ?",
+            data: { row: { ldr: 800, status: "?", hijau: "?", biru: "?" } },
+            options: [
+              "Gelap, ON, ON",
+              "Remang, ON, OFF",
+              "Terang, OFF, OFF",
+              "Gelap, OFF, OFF"
+            ],
+            correct: "Gelap, ON, ON",
+            explanation: "Nilai LDR 800 lebih dari 600, maka statusnya Gelap, sehingga semua LED menyala hidup (ON)."
+          },
+          {
+            type: "serial",
+            question: "Berdasarkan penutupan instruksi di PDF, ke alamat email manakah tugas simulasi ini harus dikirimkan?",
+            data: { status: "Email", text: "id.imanda.fachruddin@gmail.com" },
+            options: [
+              "id.imanda.fachruddin@gmail.com",
+              "id.imanda.fachruddin@yahoo.com",
+              "wokwi.simulator.id@gmail.com",
+              "arduino.project.ldr@gmail.com"
+            ],
+            correct: "id.imanda.fachruddin@gmail.com",
+            explanation: "Dokumen menginstruksikan untuk mengirimkan link proyek Wokwi ke alamat email guru pembimbing: id.imanda.fachruddin@gmail.com."
+          },
+          {
+            type: "serial",
+            question: "Apa subject email yang diwajibkan dalam pengumpulan tugas proyek LDR ini?",
+            data: { status: "Subject", text: "Tugas Projek Arduino dengan Sensor Cahaya LDR" },
+            options: [
+              "Tugas Projek Arduino dengan Sensor Cahaya LDR",
+              "Tugas Projek LDR Kelas XI",
+              "Simulasi LDR Wokwi Arduino",
+              "Tugas Sensor Cahaya LDR - Nama"
+            ],
+            correct: "Tugas Projek Arduino dengan Sensor Cahaya LDR",
+            explanation: "Berdasarkan instruksi halaman terakhir PDF: Subject email harus ditulis persis 'Tugas Projek Arduino dengan Sensor Cahaya LDR'."
+          }
+        ]
+      }
+    ];
+
+    // INITIALIZATION ON WINDOW LOAD
+    window.onload = function() {
+      // Setup click listeners for interactive play feel
+      document.body.addEventListener('click', (e) => {
+        if (e.target.tagName === 'BUTTON') {
+          playBeep('click');
+        }
+      });
+      // Start at screen welcome
+      changeScreen('screen-welcome');
+    };
+
+    // UTILITY: SCREEN SWITCHER
+    function changeScreen(screenId) {
+      // Hide all screens
+      ['screen-welcome', 'screen-setup', 'screen-map', 'screen-quiz', 'screen-feedback', 'screen-completion'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      // Show targeted screen
+      document.getElementById(screenId).classList.remove('hidden');
+
+      // Sync HUD Visibility
+      const hud = document.getElementById('hud-stats');
+      if (screenId === 'screen-welcome' || screenId === 'screen-setup') {
+        hud.classList.add('hidden');
+      } else {
+        hud.classList.remove('hidden');
+      }
+    }
+
+    // REGISTRATION FORM HANDLER
+    function registerUser(event) {
+      event.preventDefault();
+      const nameInput = document.getElementById('input-name').value.trim();
+      const classInput = document.getElementById('input-class').value.trim();
+      
+      if (nameInput && classInput) {
+        player.name = nameInput;
+        player.class = classInput;
+        player.xp = 0;
+        player.completedMissions = [];
+
+        // Update HUD display
+        document.getElementById('hud-name').innerText = player.name;
+        document.getElementById('hud-class').innerText = player.class;
+        document.getElementById('hud-xp').innerText = player.xp;
+
+        playBeep('level-up');
+        buildMissionMap();
+        changeScreen('screen-map');
+      }
+    }
+
+    // MAP BUILDER
+    function buildMissionMap() {
+      const container = document.getElementById('mission-grid');
+      container.innerHTML = '';
+
+      // Calculate progress percentage
+      const progressPercent = Math.round((player.completedMissions.length / missions.length) * 100);
+      document.getElementById('progress-percent').innerText = `${progressPercent}%`;
+
+      missions.forEach((m, idx) => {
+        const isCompleted = player.completedMissions.includes(idx);
+        // A mission is locked if the previous one is not completed yet
+        const isLocked = idx > 0 && !player.completedMissions.includes(idx - 1);
+
+        let cardClass = "";
+        let buttonHTML = "";
+        let statusBadge = "";
+
+        if (isCompleted) {
+          cardClass = "border-emerald-500/40 bg-emerald-950/20";
+          statusBadge = `<span class="px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">SELESAI</span>`;
+          buttonHTML = `
+            <button onclick="startMission(${idx})" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs text-slate-300 font-bold rounded-xl transition-all">
+              Ulangi Misi
+            </button>
+          `;
+        } else if (isLocked) {
+          cardClass = "border-slate-900 bg-slate-950/40 opacity-50";
+          statusBadge = `<span class="px-2.5 py-1 rounded bg-slate-800 text-slate-500 text-[10px] font-bold border border-slate-700">TERKUNCI</span>`;
+          buttonHTML = `
+            <button disabled class="px-4 py-2 bg-slate-900 text-slate-600 text-xs font-bold rounded-xl cursor-not-allowed">
+              Terkunci
+            </button>
+          `;
+        } else {
+          // Unlocked & Active
+          cardClass = "border-slate-800 bg-slate-900/40 hover:border-blue-500/40 transition-all";
+          statusBadge = `<span class="px-2.5 py-1 rounded bg-blue-500/10 text-blue-400 text-[10px] font-bold border border-blue-500/20 animate-pulse">AKTIF</span>`;
+          buttonHTML = `
+            <button onclick="startMission(${idx})" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-xs text-white font-bold rounded-xl shadow-md shadow-blue-500/10 transition-all">
+              Mulai Misi
+            </button>
+          `;
+        }
+
+        const mCard = document.createElement('div');
+        mCard.className = `p-6 rounded-2xl border flex flex-col justify-between gap-4 ${cardClass}`;
+        mCard.innerHTML = `
+          <div class="space-y-2">
+            <div class="flex justify-between items-start gap-4">
+              <span class="text-xs uppercase font-extrabold text-slate-500">Misi 0${idx + 1}</span>
+              ${statusBadge}
+            </div>
+            <h4 class="font-display font-bold text-lg text-slate-100">${m.title}</h4>
+            <p class="text-xs text-slate-400 leading-relaxed">${m.desc}</p>
+          </div>
+          <div class="flex items-center justify-between border-t border-slate-900 pt-4 mt-2">
+            <span class="text-xs text-slate-500 font-medium">5 Soal &bull; +500 XP</span>
+            ${buttonHTML}
+          </div>
+        `;
+        container.appendChild(mCard);
+      });
+    }
+
+    // GAME CONTROLLER: START MISSION
+    function startMission(idx) {
+      activeMissionIdx = idx;
+      activeQuestionIdx = 0;
+      loadQuestion();
+      changeScreen('screen-quiz');
+    }
+
+    // QUIZ: LOAD INDIVIDUAL QUESTION
+    function loadQuestion() {
+      const mission = missions[activeMissionIdx];
+      activeQuestion = mission.questions[activeQuestionIdx];
+      selectedOptionElement = null;
+
+      // Update quiz HUD
+      document.getElementById('quiz-mission-badge').innerText = `MISI ${activeMissionIdx + 1}`;
+      document.getElementById('quiz-progress-text').innerText = `Soal ${activeQuestionIdx + 1} dari 5`;
+      document.getElementById('quiz-current-xp').innerText = `${player.xp} XP`;
+      document.getElementById('quiz-question-text').innerText = activeQuestion.question;
+
+      // Render Dynamic SVG Based on Question Type
+      renderVisual(activeQuestion.type, activeQuestion.data);
+
+      // Render options
+      const optContainer = document.getElementById('quiz-options-container');
+      optContainer.innerHTML = '';
+
+      // Shuffle options copy to prevent predictable pattern
+      const optionsCopy = [...activeQuestion.options];
+      optionsCopy.sort(() => Math.random() - 0.5);
+
+      optionsCopy.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-4 rounded-xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-sm font-medium transition-all flex items-center justify-between group active:scale-[0.99]";
+        btn.innerHTML = `
+          <span class="text-slate-300 group-hover:text-white transition-colors">${opt}</span>
+          <span class="w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center group-hover:border-slate-500 transition-colors text-[10px] text-transparent">&bull;</span>
+        `;
+        btn.onclick = () => selectOption(btn, opt);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    // QUIZ: SELECT OPTION
+    function selectOption(elem, selectedText) {
+      if (selectedOptionElement) {
+        // Reset old selection
+        selectedOptionElement.className = "w-full text-left p-4 rounded-xl bg-slate-900 hover:bg-slate-800/80 border border-slate-800 text-sm font-medium transition-all flex items-center justify-between group active:scale-[0.99]";
+        selectedOptionElement.querySelector('span:last-child').className = "w-5 h-5 rounded-full border border-slate-700 flex items-center justify-center text-[10px] text-transparent";
+      }
+
+      // Highlight new selection
+      elem.className = "w-full text-left p-4 rounded-xl bg-blue-950/40 border-blue-500 text-sm font-semibold transition-all flex items-center justify-between group scale-[1.01] shadow-lg shadow-blue-500/5";
+      elem.querySelector('span:last-child').className = "w-5 h-5 rounded-full border-blue-400 bg-blue-500/20 flex items-center justify-center text-xs text-blue-400";
+      elem.querySelector('span:last-child').innerHTML = "✓";
+
+      selectedOptionElement = elem;
+
+      // Automatically evaluate after short aesthetic delay
+      setTimeout(() => {
+        evaluateAnswer(selectedText);
+      }, 450);
+    }
+
+    // EVALUATE SELECTED ANSWER
+    function evaluateAnswer(answerText) {
+      const isCorrect = (answerText === activeQuestion.correct);
+      
+      // Setup feedback display elements
+      const title = document.getElementById('feedback-title');
+      const desc = document.getElementById('feedback-desc');
+      const explanation = document.getElementById('feedback-explanation');
+      const xpGain = document.getElementById('feedback-xp-gain');
+      const iconBox = document.getElementById('feedback-icon-container');
+      const btnNext = document.getElementById('btn-feedback-next');
+
+      if (isCorrect) {
+        playBeep('correct');
+        player.xp += 100; // Correct answer reward
+        document.getElementById('hud-xp').innerText = player.xp;
+
+        iconBox.innerText = "⚡";
+        iconBox.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 animate-bounce";
+        title.innerText = "Jawaban Tepat!";
+        title.className = "text-2xl font-display font-bold text-emerald-400";
+        desc.innerText = "Integrasi sirkuit dan parameter logika Anda berjalan sempurna!";
+        xpGain.innerText = "+100 XP";
+        xpGain.className = "text-emerald-400 font-display font-bold text-sm";
+      } else {
+        playBeep('incorrect');
+        // Let user retry without penalty, but no XP bonus is gained on wrong try
+        iconBox.innerText = "❌";
+        iconBox.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl bg-red-500/10 text-red-400 border border-red-500/20";
+        title.innerText = "Koneksi Terputus!";
+        title.className = "text-2xl font-display font-bold text-red-400";
+        desc.innerText = "Jawaban kurang tepat. Coba analisa kembali diagram teknis di sebelah kiri.";
+        xpGain.innerText = "0 XP";
+        xpGain.className = "text-slate-500 font-display font-bold text-sm";
+      }
+
+      explanation.innerText = activeQuestion.explanation;
+
+      // If it is the last question of the mission
+      if (activeQuestionIdx === 4 && isCorrect) {
+        btnNext.innerText = "Selesaikan Misi & Klaim Bonus";
+      } else if (isCorrect) {
+        btnNext.innerText = "Lanjut Soal Berikutnya";
+      } else {
+        btnNext.innerText = "Coba Lagi Soal Ini";
+      }
+
+      // Show Feedback Dialog
+      changeScreen('screen-feedback');
+    }
+
+    // CLOSE FEEDBACK & DECIDE NEXT STEP
+    function closeFeedbackAndContinue() {
+      const feedbackTitle = document.getElementById('feedback-title').innerText;
+      const isCorrect = (feedbackTitle === "Jawaban Tepat!");
+
+      if (isCorrect) {
+        if (activeQuestionIdx < 4) {
+          activeQuestionIdx++;
+          loadQuestion();
+          changeScreen('screen-quiz');
+        } else {
+          // Mission completed!
+          playBeep('level-up');
+          player.xp += 200; // Bonus completion XP
+          document.getElementById('hud-xp').innerText = player.xp;
+          
+          if (!player.completedMissions.includes(activeMissionIdx)) {
+            player.completedMissions.push(activeMissionIdx);
+          }
+
+          if (player.completedMissions.length === missions.length) {
+            // All completed! Go to final screen
+            showFinalCompletion();
+          } else {
+            // Back to map to start next mission
+            buildMissionMap();
+            changeScreen('screen-map');
+          }
+        }
+      } else {
+        // Retry the same question
+        loadQuestion();
+        changeScreen('screen-quiz');
+      }
+    }
+
+    // SHOW FINAL SCREEN
+    function showFinalCompletion() {
+      document.getElementById('end-name').innerText = player.name;
+      document.getElementById('end-class').innerText = player.class;
+      document.getElementById('end-xp').innerText = `${player.xp} XP`;
+      changeScreen('screen-completion');
+    }
+
+    // RESTART GAME
+    function restartGame() {
+      player.name = '';
+      player.class = '';
+      player.xp = 0;
+      player.completedMissions = [];
+      document.getElementById('form-identity').reset();
+      changeScreen('screen-setup');
+    }
+
+    // DYNAMIC SVG GENERATOR ENGINE
+    // Automatically draws diagrams matching the question context!
+    function renderVisual(type, data) {
+      const canvas = document.getElementById('visual-canvas');
+      canvas.innerHTML = '';
+
+      let svgHTML = '';
+
+      if (type === 'wiring') {
+        const isPin11 = data.highlight === 'pin11';
+        const isPin10 = data.highlight === 'pin10';
+        const isPinA0 = data.highlight === 'pina0';
+        const isGnd = data.highlight === 'gnd';
+        const isRes = data.highlight === 'resistor';
+
+        svgHTML = `
+          <svg width="240" height="240" viewBox="0 0 240 240" class="w-full h-full max-h-[260px]">
+            <!-- Arduino Uno Body -->
+            <rect x="50" y="70" width="140" height="110" rx="8" fill="#1e293b" stroke="#475569" stroke-width="3" />
+            <rect x="60" y="80" width="120" height="12" rx="2" fill="#0f172a" />
+            <text x="120" y="89" fill="#94a3b8" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">DIGITAL (PWM ~)</text>
+            
+            <!-- USB Port -->
+            <rect x="25" y="90" width="30" height="40" rx="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2" />
+            <!-- IC Chip -->
+            <rect x="90" y="115" width="70" height="25" rx="2" fill="#0f172a" stroke="#334155" stroke-width="2" />
+            <text x="125" y="131" fill="#475569" font-size="9" font-family="monospace" text-anchor="middle" font-weight="bold">ATMEGA328P</text>
+
+            <!-- Pins labels -->
+            <circle cx="165" cy="86" r="4" fill="${isPin11 ? '#10b981' : '#334155'}" class="${isPin11 ? 'animate-pulse' : ''}" />
+            <text x="165" y="100" fill="${isPin11 ? '#10b981' : '#64748b'}" font-size="8" font-weight="bold" text-anchor="middle">D11</text>
+            
+            <circle cx="152" cy="86" r="4" fill="${isPin10 ? '#3b82f6' : '#334155'}" class="${isPin10 ? 'animate-pulse' : ''}" />
+            <text x="152" y="100" fill="${isPin10 ? '#3b82f6' : '#64748b'}" font-size="8" font-weight="bold" text-anchor="middle">D10</text>
+
+            <circle cx="90" cy="86" r="4" fill="${isGnd ? '#f43f5e' : '#334155'}" />
+            <text x="90" y="100" fill="${isGnd ? '#f43f5e' : '#64748b'}" font-size="8" font-weight="bold" text-anchor="middle">GND</text>
+
+            <!-- Analog Row (Bottom) -->
+            <rect x="60" y="158" width="120" height="12" rx="2" fill="#0f172a" />
+            <text x="120" y="167" fill="#94a3b8" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">ANALOG IN</text>
+            <circle cx="70" cy="164" r="4" fill="${isPinA0 ? '#10b981' : '#334155'}" class="${isPinA0 ? 'animate-pulse' : ''}" />
+            <text x="70" y="152" fill="${isPinA0 ? '#10b981' : '#64748b'}" font-size="8" font-weight="bold" text-anchor="middle">A0</text>
+
+            <!-- Component wires (Simplified graphic representations) -->
+            <!-- Resistor line -->
+            <line x1="165" y1="50" x2="165" y2="82" stroke="${isPin11 ? '#10b981' : '#475569'}" stroke-width="2" />
+            <!-- Resistor representation -->
+            <rect x="160" y="30" width="10" height="20" rx="2" fill="${isRes ? '#d97706' : '#475569'}" stroke="${isRes ? '#f59e0b' : '#334155'}" stroke-width="1.5" />
+            <line x1="162" y1="35" x2="168" y2="35" stroke="#92400e" stroke-width="2" />
+            <line x1="162" y1="40" x2="168" y2="40" stroke="#b45309" stroke-width="2" />
+            <line x1="162" y1="45" x2="168" y2="45" stroke="#f59e0b" stroke-width="2" />
+          </svg>
+        `;
+      } else if (type === 'code') {
+        svgHTML = `
+          <div class="w-full p-4 bg-slate-950 rounded-xl border border-slate-900 text-left font-mono text-xs text-slate-300 leading-relaxed overflow-x-auto whitespace-pre">
+<span class="text-emerald-500">// ANALISIS PROGRAM ARDUINO</span>
+<span class="text-blue-400">#define</span> ledHijauPin 11
+<span class="text-blue-400">#define</span> ledBiruPin 10
+<span class="text-blue-400">#define</span> ldrPin A0
+
+<span class="text-purple-400">void</span> setup() {
+  <span class="text-yellow-400">Serial</span>.<span class="text-cyan-400">begin</span>(<span class="text-orange-400">9600</span>);
+  <span class="text-cyan-400">pinMode</span>(ledHijauPin, <span class="text-orange-400">OUTPUT</span>);
+  <span class="text-cyan-400">pinMode</span>(ledBiruPin, <span class="text-orange-400">OUTPUT</span>);
+  <span class="text-cyan-400">pinMode</span>(ldrPin, <span class="text-orange-400">INPUT</span>);
+}
+
+<span class="text-purple-400">void</span> loop() {
+  <span class="text-purple-400">int</span> ldrStatus = <span class="text-cyan-400">analogRead</span>(ldrPin);
+  <span class="text-emerald-500">// ... logic test ...</span>
+}
+          </div>
+        `;
+      } else if (type === 'ldr') {
+        const val = data.ldrValue;
+        svgHTML = `
+          <svg width="240" height="240" viewBox="0 0 200 200" class="w-full h-full max-h-[260px]">
+            <!-- Sun / Moon Light Indicator -->
+            <circle cx="100" cy="80" r="40" fill="#0f172a" stroke="#1e293b" stroke-width="4" />
+            <circle cx="100" cy="80" r="24" fill="${val < 400 ? '#f59e0b' : '#334155'}" class="transition-colors" />
+            
+            <!-- Sunlight rays if bright -->
+            ${val < 400 ? `
+              <line x1="100" y1="40" x2="100" y2="25" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+              <line x1="100" y1="120" x2="100" y2="135" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+              <line x1="60" y1="80" x2="45" y2="80" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+              <line x1="140" y1="80" x2="155" y2="80" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+            ` : `
+              <!-- Moon stars representation -->
+              <circle cx="92" cy="72" r="2" fill="#94a3b8" />
+              <circle cx="110" cy="70" r="1.5" fill="#94a3b8" />
+              <circle cx="100" cy="90" r="2" fill="#94a3b8" />
+            `}
+
+            <!-- Sensor Module Design -->
+            <rect x="70" y="140" width="60" height="30" rx="3" fill="#1e3a8a" stroke="#3b82f6" stroke-width="2" />
+            <rect x="85" y="145" width="30" height="10" rx="1" fill="#ef4444" />
+            <text x="100" y="153" fill="white" font-size="8" font-family="monospace" text-anchor="middle" font-weight="bold">LDR</text>
+
+            <!-- Value Badge -->
+            <rect x="60" y="10" width="80" height="25" rx="5" fill="#020617" stroke="#334155" stroke-width="2" />
+            <text x="100" y="27" fill="#10b981" font-size="12" font-family="monospace" text-anchor="middle" font-weight="bold">${val}</text>
+          </svg>
+        `;
+      } else if (type === 'leds') {
+        const hijOn = data.hijau;
+        const birOn = data.biru;
+
+        svgHTML = `
+          <svg width="240" height="240" viewBox="0 0 200 200" class="w-full h-full max-h-[260px]">
+            <!-- Green LED -->
+            <g transform="translate(60, 40)">
+              <rect x="15" y="80" width="4" height="40" fill="#94a3b8" />
+              <rect x="25" y="80" width="4" height="48" fill="#cbd5e1" />
+              <path d="M10,80 L34,80 L34,70 C34,50 10,50 10,70 Z" fill="${hijOn ? '#10b981' : '#047857'}" stroke="#065f46" stroke-width="2" />
+              <!-- Glow Aura -->
+              ${hijOn ? `<circle cx="22" cy="65" r="30" fill="#10b981" opacity="0.15" class="animate-pulse" />` : ''}
+              <circle cx="22" cy="65" r="6" fill="${hijOn ? '#34d399' : '#059669'}" />
+              <text x="22" y="135" fill="${hijOn ? '#10b981' : '#64748b'}" font-size="10" font-weight="bold" text-anchor="middle">HIJAU</text>
+            </g>
+
+            <!-- Blue LED -->
+            <g transform="translate(110, 40)">
+              <rect x="15" y="80" width="4" height="40" fill="#94a3b8" />
+              <rect x="25" y="80" width="4" height="48" fill="#cbd5e1" />
+              <path d="M10,80 L34,80 L34,70 C34,50 10,50 10,70 Z" fill="${birOn ? '#3b82f6' : '#1d4ed8'}" stroke="#1e40af" stroke-width="2" />
+              <!-- Glow Aura -->
+              ${birOn ? `<circle cx="22" cy="65" r="30" fill="#3b82f6" opacity="0.15" class="animate-pulse" />` : ''}
+              <circle cx="22" cy="65" r="6" fill="${birOn ? '#60a5fa' : '#2563eb'}" />
+              <text x="22" y="135" fill="${birOn ? '#3b82f6' : '#64748b'}" font-size="10" font-weight="bold" text-anchor="middle">BIRU</text>
+            </g>
+          </svg>
+        `;
+      } else if (type === 'serial') {
+        svgHTML = `
+          <div class="w-full bg-slate-950 rounded-xl border border-slate-900 p-4 font-mono text-xs text-left shadow-inner relative">
+            <div class="flex items-center justify-between border-b border-slate-900 pb-2 mb-3">
+              <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">COM3 - Serial Monitor (9600 baud)</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            </div>
+            <div class="space-y-1.5 text-slate-400">
+              <p>&gt; Connection established...</p>
+              <p class="text-emerald-400 font-semibold">&gt; ${data.text}</p>
+            </div>
+          </div>
+        `;
+      } else if (type === 'table') {
+        const row = data.row;
+        svgHTML = `
+          <div class="w-full overflow-hidden rounded-xl border border-slate-800 bg-slate-950/60">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-900 border-b border-slate-800 text-slate-400 uppercase font-extrabold">
+                  <th class="p-3">Kondisi</th>
+                  <th class="p-3">Nilai LDR</th>
+                  <th class="p-3">LED Hijau</th>
+                  <th class="p-3">LED Biru</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-900 text-slate-300">
+                <tr class="${row.ldr === 800 ? 'bg-emerald-500/10' : ''}">
+                  <td class="p-3 font-semibold">Gelap</td>
+                  <td class="p-3">&gt; 600</td>
+                  <td class="p-3 text-emerald-400 font-bold">ON</td>
+                  <td class="p-3 text-emerald-400 font-bold">ON</td>
+                </tr>
+                <tr class="${row.ldr === 500 ? 'bg-blue-500/10' : ''}">
+                  <td class="p-3 font-semibold">Remang</td>
+                  <td class="p-3">300 - 600</td>
+                  <td class="p-3 text-emerald-400 font-bold">ON</td>
+                  <td class="p-3 text-red-400 font-bold">OFF</td>
+                </tr>
+                <tr class="${row.ldr === 200 ? 'bg-purple-500/10' : ''}">
+                  <td class="p-3 font-semibold">Terang</td>
+                  <td class="p-3">&le; 300</td>
+                  <td class="p-3 text-red-400 font-bold">OFF</td>
+                  <td class="p-3 text-red-400 font-bold">OFF</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      canvas.innerHTML = svgHTML;
+    }
+
+    // EMAIL SUBMISSION COMPILER
+    function sendSubmissionEmail() {
+      const email = "id.imanda.fachruddin@gmail.com";
+      const subject = "Tugas Projek Arduino dengan Sensor Cahaya LDR";
+      
+      const body = `Nama: ${player.name}
+Kelas: ${player.class}
+Skor Akhir Game: ${player.xp} XP
+
+Tautan Projek Wokwi LDR: (Silakan tempelkan link simulator Wokwi Anda di sini)
+
+--------------------------------------------------
+Laporan Penyelesaian Misi Pembelajaran:
+- Misi 1: Pengenalan Komponen (SELESAI)
+- Misi 2: Inisialisasi Kode & Setup (SELESAI)
+- Misi 3: Logika LDR & analogRead (SELESAI)
+- Misi 4: Kalibrasi Kondisi Gelap >600 (SELESAI)
+- Misi 5: Kalibrasi Kondisi Remang 301-600 (SELESAI)
+- Misi 6: Kalibrasi Kondisi Terang <=300 (SELESAI)
+- Misi 7: Integrasi Tabel Kebenaran & Pengiriman (SELESAI)
+--------------------------------------------------
+Laporan ini dibuat otomatis melalui game edukasi CyberLDR.`;
+
+      // Construct mailto link
+      const mailtoUrl = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      
+      // Open default mail provider
+      window.location.href = mailtoUrl;
+    }
+  </script>
+</body>
+</html>
